@@ -1,0 +1,15 @@
+# Build the Docker image
+# Only build production
+docker build -f Dockerfile.multi -t python-app:multi .
+docker build -f Dockerfile.multi --target production -t python-app:production .
+
+# Only build builder
+docker build -f Dockerfile.multi --target builder -t python-app:builder .
+
+# Run the container, mapping port 5000 from the container to your host
+docker run -p 5000:5000 builder
+docker run -p 5001:5000 production
+docker run -d -p 5000:5000 --name python-app python-app:multi
+
+# Test
+http://localhost:5000/

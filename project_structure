@@ -1,0 +1,29 @@
+flask-app/                  # Root project directory
+│
+├── Dockerfile             # The Dockerfile we created
+├── requirements.txt       # Python dependencies
+├── .dockerignore          # Files to exclude from Docker builds
+│
+├── app/                   # Main application package
+│   ├── __init__.py        # Flask app initialization
+│   ├── routes.py          # Route definitions
+│   ├── models.py          # Database models
+│   ├── templates/         # Jinja2 templates
+│   │   ├── base.html      # Base template
+│   │   └── index.html     # Example template
+│   └── static/            # Static files
+│       ├── css/
+│       ├── js/
+│       └── images/
+│
+├── tests/                 # Test files
+│   ├── __init__.py
+│   ├── test_routes.py     # Route tests
+│   └── test_models.py     # Model tests
+│
+├── migrations/            # Database migrations (if using Flask-Migrate)
+│
+├── config.py              # Centralizes all settings with environment variable fallbacks
+├── app.py                 # Main application entry point (creates Flask app)
+├── wsgi.py                # WSGI entry point for production
+└── .env                   # Environment variables

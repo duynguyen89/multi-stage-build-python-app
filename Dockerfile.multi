@@ -1,0 +1,47 @@
+# Build stage
+FROM python:3.9 AS builder
+
+WORKDIR /app
+
+# Copy requirements first to leverage Docker cache
+COPY requirements.txt .
+
+# Install dependencies (including Flask and testing packages)
+RUN pip install --user -r requirements.txt
+
+# Copy the rest of the application
+COPY . .
+
+# Run Flask tests (assuming you're using pytest)
+# If you have different test commands, adjust accordingly
+#RUN python -m pytest tests/
+RUN if [ -d "tests" ] && [ "$(ls -A tests)" ]; then python -m pytest tests/; else echo "No tests found"; fi
+
+# Production stage
+FROM python:3.9-slim AS production
+
+WORKDIR /app
+
+# Copy only the necessary files from the builder stage
+# Python dependencies: Contains pip-installed dependencies (Flask, Gunicorn, etc.)
+COPY --from=builder /root/.local /root/.local
+# Actual Flask application code: Flask package
+COPY --from=builder /app .
+COPY --from=builder /app/app ./app
+# Production configuration
+COPY --from=builder /app/config.py .
+# WSGI entry point: Gunicorn
+COPY --from=builder /app/wsgi.py .
+
+# Make sure scripts in .local are usable
+# ENV PATH=/root/.local/bin:$PATH
+# ENV FLASK_APP=/app/wsgi.py
+# ENV FLASK_ENV=production
+# ENV PYTHONPATH=/app
+
+# Expose the port Flask runs on
+EXPOSE 5000
+
+# Command to run the Flask application
+#CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app.wsgi:app"]
+CMD ["python", "-m", "gunicorn", "--bind", "0.0.0.0:5000", "wsgi:app"]
